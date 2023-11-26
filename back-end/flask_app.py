@@ -16,7 +16,7 @@ app = Flask(__name__)
 
 def load_data(file_path):
     return pd.read_csv(file_path)
-    print("here")
+   
 
 def preprocess_data(df):
     df.dropna(axis=0,inplace=True)
@@ -31,7 +31,7 @@ def preprocess_data(df):
 
     X_test_scaled=scaler.transform(X_test)
     X_test=pd.DataFrame(X_test_scaled)
-    return X_train,y_train,X_test,y_test
+    return X_train,y_train,X_test,y_test,X,scaler
 
 def train_model(X_train, y_train):
     model = LogisticRegression(C= 100, class_weight= 'balanced', penalty= 'l2', solver= 'liblinear')
@@ -57,7 +57,7 @@ def evaluate_model(model, X_test, y_test):
 # Load and preprocess data
 
 data = load_data('framingham.csv')
-X_train,y_train,X_test,y_test = preprocess_data(data)
+X_train,y_train,X_test,y_test,X,scaler = preprocess_data(data)
 # Train the model
 model = train_model(X_train, y_train)
 
@@ -73,11 +73,18 @@ def predict():
 
         # Make predictions
         input_features = [input_data[attribute] for attribute in X.columns]
-        prediction = model.predict([input_features])[0]
-        confidence = model.predict_proba([input_features])[0][prediction]
+        input_features = [float(value) for value in input_features]
+        input_features_scaled = scaler.transform([input_features])
+        input_features_scaled = input_features_scaled[0]
+
+
+        prediction = model.predict([input_features_scaled])[0]
+        confidence = model.predict_proba([input_features_scaled])[0][prediction]
+
+        
 
         return jsonify({
-            'predicted_class': prediction,
+            'predicted_class': int(prediction),
             'confidence': confidence
         })
 
@@ -95,4 +102,7 @@ def get_results():
     })
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
+
+  
+

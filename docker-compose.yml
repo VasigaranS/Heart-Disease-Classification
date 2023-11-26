@@ -1,0 +1,18 @@
+version: "2.18.1"
+services:
+  server:
+    build: ./back-end
+    ports:
+    - "5000:5000"
+    volumes:
+    - ./back-end:/app
+    environment:
+      FLASK_ENV: development
+  web:
+    build: ./front-end/heart-health-app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./front-end/heart-health-app:/user/src/app
+    depends_on:
+      - server
