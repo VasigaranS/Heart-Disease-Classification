@@ -11,11 +11,31 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 from sklearn.metrics import classification_report
 from sklearn.metrics import recall_score,precision_score,classification_report,roc_auc_score,roc_curve
-
+import boto3
+import os
+from dotenv import load_dotenv
+FILE_NAME = 'framingham.csv'
+load_dotenv()
 app = Flask(__name__)
 
+# Fetch sensitive information from environment variables
+AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
+AWS_SECRET_KEY = os.getenv('AWS_SECRET_KEY')
+S3_BUCKET = os.getenv('S3_BUCKET')
+
+
 def load_data(file_path):
-    return pd.read_csv(file_path)
+    s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY)
+    obj = s3.get_object(Bucket=S3_BUCKET, Key=FILE_NAME)
+    return pd.read_csv(obj['Body'])
+
+# Upload dataset to S3
+def upload_to_s3(file_path, bucket_name, object_name):
+    s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY)
+    s3.upload_file(file_path, bucket_name, object_name)
+
+# Use the function to upload the dataset
+#upload_to_s3('framingham.csv', S3_BUCKET, FILE_NAME)
    
 
 def preprocess_data(df):
@@ -105,4 +125,3 @@ if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
 
   
-
