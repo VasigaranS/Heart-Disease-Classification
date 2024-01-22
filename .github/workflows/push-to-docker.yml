@@ -4,7 +4,8 @@ on: [push] # When pushing to any branch then run this action
 env:
   DOCKER_USER: ${{secrets.DOCKER_USER}}
   DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-  REPO_NAME: ${{secrets.REPO_NAME}}
+  REPO_NAME_FRONT: ${{secrets.REPO_NAME_FRONT}}
+  REPO_NAME_BACK: ${{secrets.REPO_NAME_BACK}}
 jobs:
   push-image-to-docker-hub:  # job name
     runs-on: ubuntu-latest  # runner name : (ubuntu latest version) 
@@ -17,10 +18,10 @@ jobs:
       id: date
       run: echo "::set-output name=date::$(date +'%Y-%m-%d--%M-%S')"
     - name: Build the Docker image # push The image to the docker hub
-      run: docker build . --file back-end/Dockerfile --tag $DOCKER_USER/$REPO_NAME:${{ steps.date.outputs.date }}
+      run: docker build . --file back-end/Dockerfile --tag $DOCKER_USER/$REPO_NAME_BACK:${{ steps.date.outputs.date }}
     - name: Docker Push
-      run: docker push $DOCKER_USER/$REPO_NAME:${{ steps.date.outputs.date }}
+      run: docker push $DOCKER_USER/$REPO_NAME_BACK:${{ steps.date.outputs.date }}
     - name: Build the Docker image # push The image to the docker hub
-      run: docker build . --file front-end/heart-health-app/Dockerfile --tag $DOCKER_USER/$REPO_NAME:${{ steps.date.outputs.date }}
+      run: docker build . --file front-end/heart-health-app/Dockerfile --tag $DOCKER_USER/$REPO_NAME_FRONT:${{ steps.date.outputs.date }}
     - name: Docker Push
-      run: docker push $DOCKER_USER/$REPO_NAME:${{ steps.date.outputs.date }}
+      run: docker push $DOCKER_USER/$REPO_NAME_FRONT:${{ steps.date.outputs.date }}
