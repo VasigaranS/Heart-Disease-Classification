@@ -22,6 +22,7 @@ app = Flask(__name__)
 AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
 AWS_SECRET_KEY = os.getenv('AWS_SECRET_KEY')
 S3_BUCKET = os.getenv('S3_BUCKET')
+S3_BUCKET ='heartdataset'
 
 
 def load_data(file_path):
