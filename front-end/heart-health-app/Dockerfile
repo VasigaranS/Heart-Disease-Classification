@@ -5,7 +5,7 @@ FROM node:latest
 WORKDIR /user/src/app
 
 # Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+COPY front-end/heart-health-app/package*.json ./
 
 # Install project dependencies
 RUN npm install
