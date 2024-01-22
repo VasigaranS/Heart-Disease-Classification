@@ -13,4 +13,11 @@ ENV FLASK_APP=flask_app
 
 EXPOSE 5000
 
-CMD flask run --host=0.0.0.0
+# Define environment variable
+ENV AWS_ACCESS_KEY='AKIAQOG46ZJRFTR27GAW'
+ENV AWS_SECRET_KEY='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'
+ENV S3_BUCKET='heartdataset'
+
+
+CMD ["python", "flask_app.py"]
+
