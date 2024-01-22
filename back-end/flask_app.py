@@ -1,6 +1,7 @@
 # flask_app.py
 from flask import Flask, render_template, jsonify, request
 import pandas as pd
+import json
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
@@ -12,6 +13,7 @@ from sklearn.metrics import f1_score
 from sklearn.metrics import classification_report
 from sklearn.metrics import recall_score,precision_score,classification_report,roc_auc_score,roc_curve
 import boto3
+from botocore.exceptions import ClientError
 import os
 from dotenv import load_dotenv
 FILE_NAME = 'framingham.csv'
@@ -22,7 +24,34 @@ app = Flask(__name__)
 AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
 AWS_SECRET_KEY = os.getenv('AWS_SECRET_KEY')
 S3_BUCKET = os.getenv('S3_BUCKET')
-S3_BUCKET ='heartdataset'
+#S3_BUCKET ='heartdataset'
+
+
+def get_secret():
+
+    secret_name = "aws-docker"
+    region_name = "us-east-1"
+
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except ClientError as e:
+        # For a list of exceptions thrown, see
+        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+        raise e
+
+    secret = get_secret_value_response['SecretString']
+    return secret
+
+
 
 
 def load_data(file_path):
@@ -76,7 +105,11 @@ def evaluate_model(model, X_test, y_test):
     return auc, sensitivity, accuracy ,classification_rep
 
 # Load and preprocess data
-
+#secret=get_secret()
+#secret = json.loads(secret)
+#AWS_ACCESS_KEY = secret['AWS_ACCESS_KEY']
+#AWS_SECRET_KEY = secret['AWS_SECRET_KEY']
+#S3_BUCKET = secret['S3_BUCKET']
 data = load_data('framingham.csv')
 X_train,y_train,X_test,y_test,X,scaler = preprocess_data(data)
 # Train the model
